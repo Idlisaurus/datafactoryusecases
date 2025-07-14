@@ -1,0 +1,97 @@
+{
+	"name": "usecase2",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "medal2016",
+						"type": "DatasetReference"
+					},
+					"name": "Medals2016"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "gold",
+						"type": "DatasetReference"
+					},
+					"name": "gold"
+				},
+				{
+					"dataset": {
+						"referenceName": "DelimitedText2",
+						"type": "DatasetReference"
+					},
+					"name": "silver"
+				},
+				{
+					"dataset": {
+						"referenceName": "DelimitedText3",
+						"type": "DatasetReference"
+					},
+					"name": "bronze"
+				}
+			],
+			"transformations": [
+				{
+					"name": "split1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          ID as string,",
+				"          Name as string,",
+				"          Gender as string,",
+				"          Age as string,",
+				"          {Height (cm)} as string,",
+				"          {Weight (kg)} as string,",
+				"          Team as string,",
+				"          NOC as string,",
+				"          Games as string,",
+				"          Year as string,",
+				"          Season as string,",
+				"          City as string,",
+				"          Sport as string,",
+				"          Event as string,",
+				"          Medal as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> Medals2016",
+				"Medals2016 split(Medal == 'Gold',",
+				"     Medal == 'Silver',",
+				"     disjoint: false) ~> split1@(gold, silver, bronze)",
+				"split1@gold sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['gold'],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> gold",
+				"split1@silver sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['silver'],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> silver",
+				"split1@bronze sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['bronze'],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> bronze"
+			]
+		}
+	}
+}

@@ -1,0 +1,107 @@
+{
+	"name": "usecase4",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DelimitedText1",
+						"type": "DatasetReference"
+					},
+					"name": "Salessource"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "sales_valid",
+						"type": "DatasetReference"
+					},
+					"name": "salesvalid"
+				},
+				{
+					"dataset": {
+						"referenceName": "sales_invalid",
+						"type": "DatasetReference"
+					},
+					"name": "salesinvalid"
+				}
+			],
+			"transformations": [
+				{
+					"name": "valid"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "derivedColumn2"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          SalesDate as string,",
+				"          SalesMan as string,",
+				"          Item as string,",
+				"          Units as string,",
+				"          Unit_price as string,",
+				"          Sale_amt as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> Salessource",
+				"Salessource split(!isNull(toDate(SalesDate, 'dd-MM-yyyy')) &&  !isNull(toDecimal(replace(Sale_amt, ',', ''))) && !isNull(toDecimal(replace(Unit_price, ',', ''))),",
+				"     disjoint: false) ~> valid@(valid, invalid)",
+				"valid@valid derive(SalesDate = toDate(SalesDate, 'dd-MM-yyyy')) ~> derivedColumn1",
+				"derivedColumn1 derive(Sale_amt = toDecimal(replace(Sale_amt, ',', '')),",
+				"          Unit_price = toDecimal(replace(Unit_price, ',', ''))) ~> derivedColumn2",
+				"derivedColumn2 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          SalesDate as date,",
+				"          SalesMan as string,",
+				"          Item as string,",
+				"          Units as integer,",
+				"          Unit_price as decimal(10,2),",
+				"          Sale_amt as decimal(15,2)",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          SalesDate,",
+				"          SalesMan,",
+				"          Item,",
+				"          Units,",
+				"          Unit_price,",
+				"          Sale_amt",
+				"     )) ~> salesvalid",
+				"valid@invalid sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          SalesDate as string,",
+				"          SalesMan as string,",
+				"          Item as string,",
+				"          Units as string,",
+				"          Unit_price as string,",
+				"          Sale_amt as string,",
+				"          ErrorReason as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> salesinvalid"
+			]
+		}
+	}
+}

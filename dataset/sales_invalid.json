@@ -1,0 +1,46 @@
+{
+	"name": "sales_invalid",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "usecase5_2",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "SalesDate",
+				"type": "varchar"
+			},
+			{
+				"name": "SalesMan",
+				"type": "varchar"
+			},
+			{
+				"name": "Item",
+				"type": "varchar"
+			},
+			{
+				"name": "Units",
+				"type": "varchar"
+			},
+			{
+				"name": "Unit_price",
+				"type": "varchar"
+			},
+			{
+				"name": "Sale_amt",
+				"type": "varchar"
+			},
+			{
+				"name": "ErrorReason",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Sales_details_fail"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
